@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Реєстрація</title>
+  <style>
+    input {
+      margin-bottom: 10px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Форма реєстрації</h1>
+  <form id="registrationForm">
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email" required>
+    <br>
+
+    <label for="firstName">Ім'я:</label>
+    <input type="text" id="firstName" name="firstName" required>
+    <br>
+
+    <label for="lastName">Прізвище:</label>
+    <input type="text" id="lastName" name="lastName" required>
+    <br>
+
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+
+    <label for="confirmPassword">Підтвердження паролю:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" required>
+    <br>
+
+    <button type="submit">Зареєструватися</button>
+  </form>
+
+  <div id="message" class="error"></div>
+
+  <script>
+    document.getElementById('registrationForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      fetch('/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, firstName, lastName, password, confirmPassword }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          const messageElement = document.getElementById('message');
+
+          if (data.errors) {
+            messageElement.classList.remove('success');
+            messageElement.classList.add('error');
+            messageElement.textContent = data.errors.join(', ');
+          } else if (data.success) {
+            messageElement.classList.remove('error');
+            messageElement.classList.add('success');
+            messageElement.textContent = 'Дякуємо за реєстрацію';
+
+            setTimeout(() => {
+              messageElement.textContent = '';
+              document.getElementById('registrationForm').reset();
+            }, 5000);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+  </script>
+</body>
+</html>
